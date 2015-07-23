@@ -1,11 +1,33 @@
 #!/usr/bin/env python
 
+import math
+
+def distance(obj1, obj2):
+	''' Returns Pythagorean distance. '''
+
+	# Exception case: the distance from something to nothing is infinity. Any object is closer than no object.
+	if obj1 == None or obj2 == None:
+		return float('inf') # Always higher than any other value except itself
+
+	dist = math.sqrt(abs(obj1.position[0] - obj2.position[0]) ** 2 + abs(obj1.position[1] - obj2.position[1]) ** 2)
+	return dist
+
+def occupied(objects, position):
+    occupied = False
+    for obj in objects:
+        if obj.position[0] == position[0] and obj.position[1] == position[1]:
+            return True
+
+    return False
+
 class Game:
-	def __init__(self, gridsize):
+	def __init__(self, dimensions):
 		self.ants = {}
 		self.queens = {}
 		self.food = []
-		self.gridsize = gridsize # width,height
+		self.gridwidth = dimensions[0]
+		self.gridheight = dimensions[1]
+		self.time = 0
 	
 	def allObjects(self):
 		allObjs = []
@@ -16,30 +38,40 @@ class Game:
 			allObjs.append(self.queens[team])
 		return allObjs
 
+	def noFood(self, objects):
+		nofood = []
+		for obj in objects:
+			if not isinstance(obj, Food):
+				nofood.append(obj)
+
+		return nofood
+
 class Object:
-	def __init__(self, x, y, displayAs):
+	def __init__(self, position, displayAs):
 		self.displayAs = displayAs
-		self.x = x
-		self.y = y
+		self.position = position
 
 class Ant(Object):
 	originalHealth = 100
-	def __init__(self, x, y, team):
-		super(Ant, self).__init__(x, y, ' A' + team)
+	def __init__(self, position, team):
+		super(Ant, self).__init__(position, ' A' + team)
 		self.team = team
 		self.health = Ant.originalHealth
 		self.carrying = False
+		self.lastAttack = 0
 
 class Queen(Object):
 	foodTax = 0.05
 	originalHealth = 1000
-	def __init__(self, x, y, team):
-		super(Queen, self).__init__(x, y, ' Q' + team)
+	def __init__(self, game, position, team):
+		super(Queen, self).__init__(position, ' Q' + team)
 		self.team = team
 		self.health = Queen.originalHealth
+		game.ants[team] = []
 
 class Food(Object):
 	amount = 100
-	def __init__(self, x, y):
-		super(Food, self).__init__(x, y, ' F ')
+	def __init__(self, position):
+		super(Food, self).__init__(position, ' F ')
+		self.amount = Food.amount
 

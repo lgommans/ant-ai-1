@@ -5,27 +5,26 @@ from antlib import *
 def moveAnt(ant, towards):
 	''' Moves an ant one step. '''
 	if isinstance(towards, tuple):
-		print("Moving ant towards " + str(towards))
+		newposition = (ant.position[0] + towards[0], ant.position[1] + towards[1])
 		if towards[0] < -1 or towards[0] > 1 or towards[1] < -1 or towards[1] > 1:
 			return False
 
-		ant.x += towards[0]
-		ant.y += towards[1]
+		ant.position = newposition
 		ant.health -= 1
 
 	elif isinstance(towards, Object):
 		x = 0
 		y = 0
-		if ant.x < towards.x:
+		if ant.position[0] < towards.position[0]:
 			x = 1
-		if ant.x > towards.x:
+		if ant.position[0] > towards.position[0]:
 			x = -1
-		if ant.y > towards.y:
+		if ant.position[1] > towards.position[1]:
 			y = -1
-		if ant.y < towards.y:
+		if ant.position[1] < towards.position[1]:
 			y = 1
 
-		moveAnt(ant, (x, y))
+		return moveAnt(ant, (x, y))
 
 	return True
 
