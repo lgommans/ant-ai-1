@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 # RandomTaskAI
-# TODO: Does anyone attack enemy ants?!
 # TODO: Mark food as "I'm going there" so ants go for separate foods.
 # TODO: Dynamic task assignment?
 # TODO: (Dynamic) task switching?
@@ -30,13 +29,16 @@ def loop(game):
 				performTask(game, ant, anttask["task"])
 				break
 		if not found:
-			r = random.randrange(0, 100)
-			if r < 45:
+			if len(anttasks) < 4:
 				chosenTask = Tasks.GetFood
-			elif r < 35:
-				chosenTask = Tasks.AttackAnts
 			else:
-				chosenTask = Tasks.AttackQueen
+				r = random.randrange(0, 100)
+				if r < 45:
+					chosenTask = Tasks.GetFood
+				elif r < 35 + 45:
+					chosenTask = Tasks.AttackAnts
+				else:
+					chosenTask = Tasks.AttackQueen
 			anttasks.append({ "antid": ant.id, "task": chosenTask })
 			performTask(game, ant, chosenTask)
 
