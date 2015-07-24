@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# TODO: avoid enemies while collecting food
+# SimpleAI
 
 import math
 

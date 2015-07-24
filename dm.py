@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+# TODO: colors
+
 import sys
 from time import sleep
 from random import randrange as rand
@@ -8,7 +10,7 @@ from antlib import *
 from publicFunctions import *
 
 from ai1 import loop as ai1loop
-from ai2 import loop as ai2loop
+from ai3 import loop as ai3loop
 
 def read_grid(filename):
     execfile("gridObjects-" + filename + ".py")
@@ -44,7 +46,7 @@ def spawn_food():
         if occupied(game.allObjects(), (x, y)):
             continue
 
-        game.food.append(Food((x, y)))
+        game.food.append(Food(game, (x, y)))
         break
 
 def gameMaintenance():
@@ -96,7 +98,7 @@ def gameMaintenance():
                     ant.health = min(ant.health, ant.originalHealth)
                     game.queens[ant.team].health += food.amount * Queen.foodTax
                     game.queens[ant.team].health = min(game.queens[ant.team].health, Queen.originalHealth)
-                    game.ants[ant.team].append(Ant(game.queens[ant.team].position, ant.team))
+                    Ant(game, ant.team)
                     food.amount = 0
                     removeFood.append(food)
 
@@ -114,17 +116,17 @@ game = Game((50, 79))
 
 queenpos = (0, 0)
 game.queens['L'] = Queen(game, queenpos, 'L')
-game.ants['L'].append(Ant(game.queens['L'].position, 'L'))
+Ant(game, 'L')
 
 queenpos = game.gridwidth - 1, game.gridheight - 1
 game.queens['J'] = Queen(game, queenpos, 'J')
-game.ants['J'].append(Ant(game.queens['J'].position, 'J'))
+Ant(game, 'J')
 
 # Main loop
 while True:
     gameMaintenance()
+    ai3loop(game)
     ai1loop(game)
-    ai2loop(game)
     displayGrid()
     sleep(0.1) 
 

@@ -28,6 +28,7 @@ class Game:
 		self.gridwidth = dimensions[0]
 		self.gridheight = dimensions[1]
 		self.time = 0
+		self.newid = 0
 	
 	def allObjects(self):
 		allObjs = []
@@ -53,12 +54,14 @@ class Object:
 
 class Ant(Object):
 	originalHealth = 100
-	def __init__(self, position, team):
-		super(Ant, self).__init__(position, ' A' + team)
+	def __init__(self, game, team):
+		super(Ant, self).__init__(game.queens[team].position, ' A' + team)
 		self.team = team
 		self.health = Ant.originalHealth
-		self.carrying = False
 		self.lastAttack = 0
+		self.id = game.newid
+		game.newid += 1
+		game.ants[team].append(self)
 
 class Queen(Object):
 	foodTax = 0.05
@@ -67,11 +70,15 @@ class Queen(Object):
 		super(Queen, self).__init__(position, ' Q' + team)
 		self.team = team
 		self.health = Queen.originalHealth
+		self.id = game.newid
+		game.newid += 1
 		game.ants[team] = []
 
 class Food(Object):
 	amount = 100
-	def __init__(self, position):
+	def __init__(self, game, position):
 		super(Food, self).__init__(position, ' F ')
+		self.id = game.newid
+		game.newid += 1
 		self.amount = Food.amount
 

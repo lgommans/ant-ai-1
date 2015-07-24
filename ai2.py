@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+# RandomAI
+
 import math, random
 
 from antlib import *
