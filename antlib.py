@@ -13,12 +13,12 @@ def distance(obj1, obj2):
 	return dist
 
 def occupied(objects, position):
-    occupied = False
-    for obj in objects:
-        if obj.position[0] == position[0] and obj.position[1] == position[1]:
-            return True
+	occupied = False
+	for obj in objects:
+		if obj.position[0] == position[0] and obj.position[1] == position[1]:
+			return True
 
-    return False
+	return False
 
 class Game:
 	def __init__(self, dimensions):
@@ -46,6 +46,12 @@ class Game:
 				nofood.append(obj)
 
 		return nofood
+	
+	def antHealth(self, team):
+		total = 0
+		for ant in self.ants[team]:
+			total += ant.health
+		return total
 
 class Object:
 	def __init__(self, position, displayAs):
