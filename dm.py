@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-# TODO: colors
 # TODO: use curses?
 
 import sys, math
@@ -36,6 +35,9 @@ def cls():
 
 def displayStats():
 	global enabled
+
+	if enabled['antCount']:
+		displayStat("Ant count", len(game.ants['L']), len(game.ants['J']))
 
 	if enabled['antHealth']:
 		displayStat("Ants health", game.antHealth('L'), game.antHealth('J'))
@@ -189,7 +191,7 @@ def inputHandling():
 slowdeath = 3 # When ants attack each other, they lose (sqrt(enemyant.health)*slowdeath)
 framedelay = 0.2
 drawevery = 1
-enabled = { 'antHealth': True, 'queenHealth': True }
+enabled = { 'antHealth': True, 'queenHealth': True, 'antCount': True }
 
 game = Game((50, 50))
 
