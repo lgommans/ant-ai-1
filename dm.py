@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
-# TODO: use curses?
+# TODO: use curses? Or pygame?
+# TODO: change AI loading method (see ai1-*.py)
 
 import sys, math
 from time import sleep
@@ -11,8 +12,8 @@ from antlib import *
 from publicFunctions import *
 from external import NonBlockingConsole
 
-from ai1 import loop as ai1loop
-from ai3 import loop as ai3loop
+from ai1 import loop as ai4loop
+from ai5 import loop as ai5loop
 
 def color(team = None):
 	# NOTE: to get colors, remove the return line below
@@ -107,7 +108,8 @@ def spawn_food():
 def gameMaintenance():
 	game.time += 1
 
-	spawn_food()
+	for i in range(0, 2):
+		spawn_food()
 
 	removeFood = []
 	removeAnt = []
@@ -142,7 +144,6 @@ def gameMaintenance():
 			for queenteam in game.queens:
 				if ant.position == game.queens[queenteam].position and queenteam != ant.team:
 					# ant is at the same location as this enemy queen!
-					print("Queen attacked with " + str(ant.health) + " force!")
 					game.queens[queenteam].health -= ant.health
 					if ant not in removeAnt:
 						removeAnt.append(ant)
@@ -151,7 +152,7 @@ def gameMaintenance():
 						print("Team " + queenteam + " lost!")
 						sys.exit(0)
 
-			# If two ants reach a food at the same time, they both get it.
+			# If two ants reach a food at the same time, a random one gets it
 			for food in game.food:
 				if ant.position == food.position and food.amount > 0:
 					ant.health += food.amount * (1 - Queen.foodTax)
@@ -167,6 +168,10 @@ def gameMaintenance():
 
 	for food in removeFood:
 		game.food.remove(food)
+	
+	if len(game.ants['J']) == 0 and len(game.ants['L']) == 0:
+		print("There are no winners in this game.")
+		sys.exit(0)
 
 def inputHandling():
 	global framedelay, drawevery
@@ -189,11 +194,12 @@ def inputHandling():
 
 # Initialization
 slowdeath = 3 # When ants attack each other, they lose (sqrt(enemyant.health)*slowdeath)
-framedelay = 0.2
+framedelay = 0.1
 drawevery = 1
 enabled = { 'antHealth': True, 'queenHealth': True, 'antCount': True }
 
-game = Game((50, 50))
+#game = Game((50, 50))
+game = Game((51, 51))
 
 queenpos = (0, 0)
 game.queens['L'] = Queen(game, queenpos, 'L')
@@ -203,12 +209,15 @@ queenpos = game.gridwidth - 1, game.gridheight - 1
 game.queens['J'] = Queen(game, queenpos, 'J')
 Ant(game, 'J')
 
+for i in range(0, 10):
+	spawn_food()
+
 # Main loop
 while True:
 	gameMaintenance()
 	inputHandling()
-	ai3loop(game)
-	ai1loop(game)
+	ai4loop(game)
+	ai5loop(game)
 	if game.time % math.ceil(drawevery) == 0:
 		cls()
 		displayStats()

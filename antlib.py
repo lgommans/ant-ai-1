@@ -54,7 +54,7 @@ class Game:
 		return total
 
 class Object:
-	def __init__(self, position, displayAs):
+	def __init__(self, position, displayAs = None):
 		self.displayAs = displayAs
 		self.position = position
 

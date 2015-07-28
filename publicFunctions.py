@@ -1,12 +1,16 @@
 #!/usr/bin/env python
 
 from antlib import *
+import traceback
 
 def moveAnt(ant, towards):
 	''' Moves an ant one step. '''
 	if isinstance(towards, tuple):
 		newposition = (ant.position[0] + towards[0], ant.position[1] + towards[1])
 		if towards[0] < -1 or towards[0] > 1 or towards[1] < -1 or towards[1] > 1:
+			return False
+
+		if newposition == ant.position:
 			return False
 
 		ant.position = newposition
