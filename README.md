@@ -8,5 +8,5 @@ in a next version.
 
 ## Files
 
-dm.py is the Dungeon Master; the game controller.
+dm.py is the Dungeon Master; the game controller. <More documentation is TODO.>
 
