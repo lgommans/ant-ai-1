@@ -10,8 +10,8 @@ import math, random
 from antlib import *
 import publicFunctions
 
-myteam = 'J'
-enemyteam = 'L'
+myteam = 'L'
+enemyteam = 'J'
 
 class Tasks:
 	GetFood = 1

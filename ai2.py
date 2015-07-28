@@ -7,8 +7,8 @@ import math, random
 from antlib import *
 import publicFunctions
 
-myteam = 'J'
-enemyteam = 'L'
+myteam = 'L'
+enemyteam = 'J'
 
 def possible(game, x, y):
 	if x < 0 or y < 0 or x >= game.gridwidth or y >= game.gridheight:
