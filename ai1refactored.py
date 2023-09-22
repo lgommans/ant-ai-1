@@ -7,9 +7,6 @@ import math
 from antlib import *
 import publicFunctions
 
-def initAI(myteam, enemyteams):
-    AI(myteam, enemyteams)
-
 class AI:
     def __init__(self, myteam, enemyteams):
         self.myteam = myteam
@@ -18,21 +15,21 @@ class AI:
     def loop(self, game):
         enemyants = []
         enemyqueens = []
-        for enemyteam in enemyteams:
+        for enemyteam in self.enemyteams:
             enemyants += game.ants[enemyteam]
-            enemyqueens += game.queens[enemyteam]
+            enemyqueens.append(game.queens[enemyteam])
 
-        if len(enemyants) > 0:
-            if self.groupHealth(enemyteam) <= self.groupHealth(enemyteam):
-                self.goto(game, game.ants[myteam], game.food)
+            if len(enemyants) > 0:
+                if self.groupHealth(game.ants[self.myteam]) <= self.groupHealth(game.ants[enemyteam]):
+                    self.goto(game, game.ants[self.myteam], game.food)
+                else:
+                    self.goto(game, game.ants[self.myteam], enemyants)
             else:
-                self.goto(game, game.ants[myteam], enemyants)
-        else:
-            # No more enemy ants.
-            if self.groupHealth(game.ants[myteam]) > game.queens[enemyteam].health:
-                self.goto(game, game.ants[myteam], enemyqueens)
-            else:
-                self.goto(game, game.ants[myteam], game.food)
+                # No more enemy ants.
+                if self.groupHealth(game.ants[self.myteam]) > game.queens[enemyteam].health:
+                    self.goto(game, game.ants[self.myteam], enemyqueens)
+                else:
+                    self.goto(game, game.ants[self.myteam], game.food)
 
     def goto(self, game, ants, objects):
         for ant in ants:

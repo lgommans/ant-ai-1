@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
 from antlib import *
-import traceback
 
 def moveAnt(ant, towards):
+	# TODO check that it moves only once per step
 	''' Moves an ant one step. '''
 	if isinstance(towards, tuple):
 		newposition = (ant.position[0] + towards[0], ant.position[1] + towards[1])

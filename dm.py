@@ -12,8 +12,8 @@ from antlib import *
 from publicFunctions import *
 from external import NonBlockingConsole
 
-from ai1 import loop as ai4loop
-from ai5 import loop as ai5loop
+from ai1refactored import AI as AI1
+from ai5 import loop as ailoop
 
 def color(team = None):
 	# NOTE: to get colors, remove the return line below
@@ -107,9 +107,6 @@ def spawn_food():
 
 def gameMaintenance():
 	game.time += 1
-
-	for i in range(0, 2):
-		spawn_food()
 
 	removeFood = []
 	removeAnt = []
@@ -208,15 +205,19 @@ queenpos = game.gridwidth - 1, game.gridheight - 1
 game.queens['J'] = Queen(game, queenpos, 'J')
 Ant(game, 'J')
 
+ai1 = AI1(myteam='L', enemyteams=['J'])
+
 for i in range(0, 10):
 	spawn_food()
 
 # Main loop
 while True:
+	for i in range(0, 2):
+		spawn_food()
 	gameMaintenance()
 	inputHandling()
-	ai4loop(game)
-	ai5loop(game)
+	ai1.loop(game)
+	ailoop(game)
 	if game.time % math.ceil(drawevery) == 0:
 		cls()
 		displayStats()
