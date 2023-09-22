@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 width = 100
 height = width
 

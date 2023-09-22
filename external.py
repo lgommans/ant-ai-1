@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 # From: http://stackoverflow.com/a/10079805
 
 import sys
