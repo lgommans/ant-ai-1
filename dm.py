@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # TODO: use curses? Or pygame?
 # TODO: change AI loading method (see ai1-*.py)
@@ -198,7 +198,6 @@ framedelay = 0.1
 drawevery = 1
 enabled = { 'antHealth': True, 'queenHealth': True, 'antCount': True }
 
-#game = Game((50, 50))
 game = Game((51, 51))
 
 queenpos = (0, 0)

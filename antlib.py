@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 import math
 
 def distance(obj1, obj2):
@@ -61,7 +59,7 @@ class Object:
 class Ant(Object):
 	originalHealth = 100
 	def __init__(self, game, team):
-		super(Ant, self).__init__(game.queens[team].position, ' A' + team)
+		super().__init__(game.queens[team].position, ' A' + team)
 		self.team = team
 		self.health = Ant.originalHealth
 		self.lastAttack = 0
@@ -73,7 +71,7 @@ class Queen(Object):
 	foodTax = 0.05
 	originalHealth = 1000
 	def __init__(self, game, position, team):
-		super(Queen, self).__init__(position, ' Q' + team)
+		super().__init__(position, ' Q' + team)
 		self.team = team
 		self.health = Queen.originalHealth
 		self.id = game.newid
@@ -83,7 +81,7 @@ class Queen(Object):
 class Food(Object):
 	amount = 100
 	def __init__(self, game, position):
-		super(Food, self).__init__(position, ' F ')
+		super().__init__(position, ' F ')
 		self.id = game.newid
 		game.newid += 1
 		self.amount = Food.amount
