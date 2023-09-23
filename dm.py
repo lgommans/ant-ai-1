@@ -12,12 +12,12 @@ from antlib import *
 from publicFunctions import *
 from external import NonBlockingConsole
 
-from ai1refactored import AI as AI1
-from ai5 import loop as ailoop
+from AIs import SimpleAI, RandomAI
 
 def color(team = None):
-    # NOTE: to get colors, remove the return line below
-    return ''
+    if not colorsEnabled:
+        return
+
     if team == None:
         return bgcol.RESET
     elif team == 'none':
@@ -194,6 +194,7 @@ slowdeath = 3 # When ants attack each other, they lose (sqrt(enemyant.health)*sl
 framedelay = 0.1
 drawevery = 1
 enabled = { 'antHealth': True, 'queenHealth': True, 'antCount': True }
+colorsEnabled = True
 
 game = Game((51, 51))
 
@@ -205,7 +206,8 @@ queenpos = game.gridwidth - 1, game.gridheight - 1
 game.queens['J'] = Queen(game, queenpos, 'J')
 Ant(game, 'J')
 
-ai1 = AI1(myteam='L', enemyteams=['J'])
+ai1 = SimpleAI.AI(myteam='J', enemyteams=['J'])
+ai2 = RandomAI.AI(myteam='L', enemyteams=['L'])
 
 for i in range(0, 10):
     spawn_food()
@@ -217,7 +219,7 @@ while True:
     gameMaintenance()
     inputHandling()
     ai1.loop(game)
-    ailoop(game)
+    ai2.loop(game)
     if game.time % math.ceil(drawevery) == 0:
         cls()
         displayStats()
