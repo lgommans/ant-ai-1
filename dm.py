@@ -240,8 +240,8 @@ colorsEnabled = True
 headless = False
 
 game = Game(dimensions=(49, 49), ais={
-    'L': RandomTaskAI,
-    'J': RandomTaskAI,
+    'L': AdvancedTaskAI2,
+    'J': AdvancedTaskAI,
 })
 
 for i in range(0, 10):
