@@ -12,6 +12,10 @@ class AI:
         self.enemyteams = enemyteams
         self.name = 'AdvancedTaskAI2'
 
+    def queenDied(self, team):
+        if team in self.enemyteams:
+            self.enemyteams.remove(team)
+
     def antDied(self, ant):
         pass
 

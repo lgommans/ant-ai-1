@@ -23,6 +23,10 @@ def color(team = None):
         return bgcol.RED
     elif team == 'L':
         return bgcol.BLUE
+    elif team == 'K':
+        return bgcol.MAGENTA
+    elif team == 'M':
+        return bgcol.CYAN
 
 def read_grid(filename):
     execfile("gridObjects-" + filename + ".py")
@@ -76,10 +80,7 @@ def displayGrid():
     for obj in game.allObjects():
         text = ''
         if hasattr(obj, 'team'):
-            if obj.team == 'J':
-                text = color('J')
-            else:
-                text = color('L')
+            text = color(obj.team)
         else:
             text = color('none')
 
@@ -153,16 +154,26 @@ def gameMaintenance():
                             removeAnt[enemyant] = True
 
             for queenteam in game.queens:
-                if ant.position == game.queens[queenteam].position and queenteam != ant.team:
+                # if   queen is being attacked                     and   it's not at home    and  this queen is not already dead
+                if ant.position == game.queens[queenteam].position and queenteam != ant.team and game.queens[queenteam].health > 0:
                     # ant is at the same location as this enemy queen!
                     game.queens[queenteam].health -= ant.health
                     if ant.id not in removeAnt:
                         removeAnt[ant] = True
 
                     if game.queens[queenteam].health <= 0:
+                        for team in game.teams:
+                            game.teams[team].queenDied(queenteam)
+
+                        for ant in game.ants[queenteam]:
+                            removeAnt[ant] = True
+
                         print("Team " + queenteam + " lost!")
                         displayStats()
-                        sys.exit(0)
+
+                        aliveTeams = sum((1 for team in game.teams if game.queens[team].health > 0))
+                        if aliveTeams < 2:
+                            sys.exit(0)
 
     # If two ants reach a food at the same time, they get an equal share
     for food in game.food:
@@ -239,10 +250,14 @@ enabled = { 'antHealth': True, 'queenHealth': True, 'antCount': True, 'time': Tr
 colorsEnabled = True
 headless = False
 
-game = Game(dimensions=(49, 49), ais={
-    'L': AdvancedTaskAI2,
-    'J': AdvancedTaskAI,
-})
+ais = {
+    'L': RandomAI,
+    'J': RandomTaskAI,
+    'K': SimpleAI,
+    'M': AdvancedTaskAI,
+}
+
+game = Game(dimensions=(49, 49), ais=ais)
 
 for i in range(0, 10):
     spawn_food()

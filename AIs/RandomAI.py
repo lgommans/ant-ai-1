@@ -9,6 +9,10 @@ class AI:
         self.enemyteams = enemyteams
         self.name = 'RandomAI'
 
+    def queenDied(self, team):
+        if team in self.enemyteams:
+            self.enemyteams.remove(team)
+
     def antDied(self, ant):
         pass
 

@@ -16,6 +16,10 @@ class AI:
 
         self.anttasks = {}
 
+    def queenDied(self, team):
+        if team in self.enemyteams:
+            self.enemyteams.remove(team)
+
     def antDied(self, ant):
         del self.anttasks[ant.id]
 
