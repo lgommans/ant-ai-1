@@ -1,11 +1,8 @@
 #!/usr/bin/env python3
 
 # TODO: use curses? Or pygame?
-# TODO: change AI loading method (see ai1-*.py)
 
-import sys, math
-from time import sleep
-from random import randrange as rand
+import sys, math, random, time
 from colorama import Fore as fgcol, Back as bgcol, Style as charbrightness
 
 from antlib import *
@@ -96,8 +93,8 @@ def spawn_food():
             print("WARN: No free space for food?")
             break
 
-        x = rand(0, game.gridwidth)
-        y = rand(0, game.gridheight)
+        x = random.randrange(0, game.gridwidth)
+        y = random.randrange(0, game.gridheight)
 
         if occupied(game.allObjects(), (x, y)):
             continue
@@ -108,61 +105,70 @@ def spawn_food():
 def gameMaintenance():
     game.time += 1
 
-    removeFood = []
-    removeAnt = []
+    removeFood = {}
+    removeAnt = {}
 
-    for antteam in game.ants:
-        for ant in game.ants[antteam]:
+    teamorder = list(game.teams.keys())
+    random.shuffle(teamorder)
+    for antteam1 in game.teams:
+        for ant in game.ants[antteam1]:
+            if ant in removeAnt:
+                continue
             if ant.health <= 0:
                 if ant not in removeAnt:
-                    removeAnt.append(ant)
+                    removeAnt[ant] = True
                 continue
-            for antteam2 in game.ants:
-                if antteam2 != antteam:
-                    for enemyant in game.ants[antteam2]:
-                        if enemyant.position == ant.position:
-                            # Enemyant and ant are are the same position!
-                            enemyanthealth = enemyant.health
+            for antteam2 in game.teams:
+                if antteam2 == antteam1:
+                    continue
+                for enemyant in game.ants[antteam2]:
+                    if enemyant in removeAnt:
+                        continue
+                    if enemyant.position == ant.position:
+                        # Enemyant and ant are are the same position!
+                        enemyanthealth = enemyant.health
 
-                            # Prevent them from using their health twice
-                            if ant.lastAttack != game.time and ant.health >= 0:
-                                enemyant.health -= math.sqrt(ant.health) * slowdeath
-                            if enemyant.lastAttack != game.time and enemyanthealth >= 0:
-                                ant.health -= math.sqrt(enemyanthealth) * slowdeath
+                        # Prevent them from using their health twice
+                        if ant.lastAttack != game.time and ant.health >= 0:
+                            enemyant.health -= math.sqrt(ant.health) * slowdeath
+                        if enemyant.lastAttack != game.time and enemyanthealth >= 0:
+                            ant.health -= math.sqrt(enemyanthealth) * slowdeath
 
-                            enemyant.lastAttack = game.time
-                            ant.lastAttack = game.time
+                        enemyant.lastAttack = game.time
+                        ant.lastAttack = game.time
 
-                            if ant.health <= 0 and ant not in removeAnt:
-                                removeAnt.append(ant)
-                            if enemyant.health <= 0 and enemyant not in removeAnt:
-                                removeAnt.append(enemyant)
+                        if ant.health <= 0 and ant not in removeAnt:
+                            removeAnt[ant] = True
+                        if enemyant.health <= 0 and enemyant not in removeAnt:
+                            removeAnt[enemyant] = True
 
             for queenteam in game.queens:
                 if ant.position == game.queens[queenteam].position and queenteam != ant.team:
                     # ant is at the same location as this enemy queen!
                     game.queens[queenteam].health -= ant.health
-                    if ant not in removeAnt:
-                        removeAnt.append(ant)
+                    if ant.id not in removeAnt:
+                        removeAnt[ant] = True
 
                     if game.queens[queenteam].health <= 0:
                         print("Team " + queenteam + " lost!")
                         sys.exit(0)
 
-            # If two ants reach a food at the same time, a random one gets it
+            # If two ants reach a food at the same time, they get an equal share
             for food in game.food:
-                if ant.position == food.position and food.amount > 0:
-                    ant.health += food.amount * (1 - Queen.foodTax)
+                candidates = []
+                if ant.position == food.position:
+                    candidates.append(ant)
+                for ant in candidates:
+                    amount = food.amount / len(candidates)
+                    ant.health += amount * (1 - Queen.foodTax)
                     ant.health = min(ant.health, ant.originalHealth)
-                    game.queens[ant.team].health += food.amount * Queen.foodTax
+                    game.queens[ant.team].health += amount * Queen.foodTax
                     game.queens[ant.team].health = min(game.queens[ant.team].health, Queen.originalHealth)
                     Ant(game, ant.team)
-                    food.amount = 0
-                    removeFood.append(food)
+                    removeFood[food] = True
 
     for ant in removeAnt:
         game.ants[ant.team].remove(ant)
-        ant.team
 
     for food in removeFood:
         game.food.remove(food)
@@ -219,11 +225,13 @@ while True:
         spawn_food()
     gameMaintenance()
     inputHandling()
-    for team in game.teams:
+    teamorder = list(game.teams.keys())
+    random.shuffle(teamorder)
+    for team in teamorder:
         game.teams[team].loop(game)
     if game.time % math.ceil(drawevery) == 0:
         cls()
         displayStats()
         displayGrid()
-    sleep(framedelay)
+    time.sleep(framedelay)
 

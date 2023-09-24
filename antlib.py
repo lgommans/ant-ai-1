@@ -33,6 +33,7 @@ class Game:
             otherteams = list(ais.keys())
             otherteams.remove(team)
             self.teams[team] = ais[team].AI(myteam=team, enemyteams=otherteams)
+            self.ants[team] = []
     
     def allObjects(self):
         allObjs = []
@@ -82,7 +83,6 @@ class Queen(Object):
         self.health = Queen.originalHealth
         self.id = game.newid
         game.newid += 1
-        game.ants[team] = []
 
 class Food(Object):
     amount = 100
