@@ -22,7 +22,7 @@ def color(team = None):
     elif team == 'J':
         return bgcol.RED
     elif team == 'L':
-        return bgcol.YELLOW
+        return bgcol.BLUE
 
 def read_grid(filename):
     execfile("gridObjects-" + filename + ".py")
@@ -43,6 +43,16 @@ def displayStats():
     if enabled['queenHealth']:
         displayStat("Queen health", game.queens['L'].health, game.queens['J'].health)
 
+    if enabled['time']:
+        fps = game.time / (time.time() - starttime)
+        if fps > 10:
+            fps = round(fps)
+        elif fps > 1:
+            fps = round(fps, 1)
+        else:
+            fps = round(fps, 2)
+        sys.stdout.write(f"frame#{game.time:_}; FPS: {fps}\t")
+
     sys.stdout.write(color() + "\n")
 
 def displayStat(title, statL, statJ):
@@ -56,7 +66,7 @@ def displayStat(title, statL, statJ):
         perc += str(n) + "%" + color()
     else:
         perc = 'INF'
-    sys.stdout.write(color() + title + " " + color('L') + "L: " + str(round(statL)) + color() + "; " + color('J') + "J: " + str(round(statJ)) + color() + " (L/J=" + perc + "). \t")
+    sys.stdout.write(title + " " + color('L') + "L: " + str(round(statL)) + color() + "; " + color('J') + "J: " + str(round(statJ)) + color() + " (L/J=" + perc + "). \t" + color())
 
 def displayGrid():
     outstr = ''
@@ -151,23 +161,35 @@ def gameMaintenance():
 
                     if game.queens[queenteam].health <= 0:
                         print("Team " + queenteam + " lost!")
+                        displayStats()
                         sys.exit(0)
 
-            # If two ants reach a food at the same time, they get an equal share
-            for food in game.food:
-                candidates = []
+    # If two ants reach a food at the same time, they get an equal share
+    for food in game.food:
+        candidates = []
+        teamShares = {}
+        for team in game.ants:
+            for ant in game.ants[team]:
                 if ant.position == food.position:
                     candidates.append(ant)
-                for ant in candidates:
-                    amount = food.amount / len(candidates)
-                    ant.health += amount * (1 - Queen.foodTax)
-                    ant.health = min(ant.health, ant.originalHealth)
-                    game.queens[ant.team].health += amount * Queen.foodTax
-                    game.queens[ant.team].health = min(game.queens[ant.team].health, Queen.originalHealth)
-                    Ant(game, ant.team)
-                    removeFood[food] = True
+                    teamShares[ant.team] = 0  # initialize the key in the array
+        if len(candidates) > 0:
+            for ant in candidates:
+                amount = food.amount / len(candidates)
+                teamShares[ant.team] += amount
+                ant.health += amount * (1 - Queen.foodTax)
+                ant.health = min(ant.health, ant.originalHealth)
+                game.queens[ant.team].health += amount * Queen.foodTax
+                game.queens[ant.team].health = min(game.queens[ant.team].health, Queen.originalHealth)
+                removeFood[food] = True
+
+            # only spawn the ant for the team that got most of the food. Not sure if this should be even stricter, like 0.9, or spawning an ant with proportional health or so...
+            teamWithGreatestShare = max(teamShares, key=teamShares.get)
+            if teamShares[teamWithGreatestShare] > 0.5:
+                game.addAnt(ant.team)
 
     for ant in removeAnt:
+        game.teams[ant.team].antDied(ant)
         game.ants[ant.team].remove(ant)
 
     for food in removeFood:
@@ -178,7 +200,7 @@ def gameMaintenance():
         sys.exit(0)
 
 def inputHandling():
-    global framedelay, drawevery
+    global framedelay, drawevery, headless
 
     # NonBlockingConsole gets keystrokes from the console. It's a bit whacky, but the best I've been able to find without writing something elaborate or multi-threaded myself.
     # Users need to hit enter after typing a character, but it's good enough for now.
@@ -195,26 +217,32 @@ def inputHandling():
             drawevery *= 1.5
         elif char == '_':
             drawevery /= 1.5
+        elif char == 'h':
+            headless = not headless
+            if headless:
+                print('Headless mode on (use ? for help)')
+        elif char == '?':
+            print('? this help overview')
+            print('q quit')
+            print('+ sleep less long between frames')
+            print('- sleep longer between frames')
+            print('= increase frame skipping')
+            print('_ decrease frame skipping')
+            print('h toggle headless mode')
 
 # Initialization
+starttime = time.time()
 slowdeath = 3 # When ants attack each other, they lose (sqrt(enemyant.health)*slowdeath)
 framedelay = 0.1
 drawevery = 1
-enabled = { 'antHealth': True, 'queenHealth': True, 'antCount': True }
+enabled = { 'antHealth': True, 'queenHealth': True, 'antCount': True, 'time': True }
 colorsEnabled = True
+headless = False
 
 game = Game(dimensions=(49, 49), ais={
-    'J': SimpleAI,
     'L': RandomTaskAI,
+    'J': RandomTaskAI,
 })
-
-queenpos = (0, 0)
-game.queens['L'] = Queen(game, queenpos, 'L')
-Ant(game, 'L')
-
-queenpos = game.gridwidth - 1, game.gridheight - 1
-game.queens['J'] = Queen(game, queenpos, 'J')
-Ant(game, 'J')
 
 for i in range(0, 10):
     spawn_food()
@@ -229,9 +257,10 @@ while True:
     random.shuffle(teamorder)
     for team in teamorder:
         game.teams[team].loop(game)
-    if game.time % math.ceil(drawevery) == 0:
-        cls()
-        displayStats()
-        displayGrid()
-    time.sleep(framedelay)
+    if not headless:
+        if game.time % math.ceil(drawevery) == 0:
+            cls()
+            displayStats()
+            displayGrid()
+        time.sleep(framedelay)
 

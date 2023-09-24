@@ -1,5 +1,3 @@
-# RandomAI
-
 import math, random
 
 from antlib import *
@@ -9,6 +7,10 @@ class AI:
     def __init__(self, myteam, enemyteams):
         self.myteam = myteam
         self.enemyteams = enemyteams
+        self.name = 'RandomAI'
+
+    def antDied(self, ant):
+        pass
 
     def loop(self, game):
         for ant in game.ants[self.myteam]:

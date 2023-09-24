@@ -28,13 +28,22 @@ class Game:
         self.time = 0
         self.newid = 0
 
+        queenPositions = iter((
+            (0                 , 0                  ),
+            (self.gridwidth - 1, self.gridheight - 1),
+            (self.gridwidth - 1, 0                  ),
+            (0                 , self.gridheight - 1),
+        ))
+
         self.teams = {}
         for team in ais:
             otherteams = list(ais.keys())
             otherteams.remove(team)
             self.teams[team] = ais[team].AI(myteam=team, enemyteams=otherteams)
+            self.queens[team] = Queen(self, next(queenPositions), team)
             self.ants[team] = []
-    
+            self.addAnt(team)  # start each team off with one ant to gather food
+
     def allObjects(self):
         allObjs = []
         allObjs += self.food
@@ -51,7 +60,12 @@ class Game:
                 nofood.append(obj)
 
         return nofood
-    
+
+    def addAnt(self, team):
+        self.ants[team].append(Ant(team, self.newid, self.queens[team].position))
+        self.newid += 1
+
+
     def antHealth(self, team):
         total = 0
         for ant in self.ants[team]:
@@ -65,17 +79,15 @@ class Object:
 
 class Ant(Object):
     originalHealth = 100
-    def __init__(self, game, team):
-        super().__init__(game.queens[team].position, ' A' + team)
+    def __init__(self, team, newid, position):
+        super().__init__(position, ' A' + team)
         self.team = team
         self.health = Ant.originalHealth
         self.lastAttack = 0
-        self.id = game.newid
-        game.newid += 1
-        game.ants[team].append(self)
+        self.id = newid
 
 class Queen(Object):
-    foodTax = 0.05
+    foodTax = 0.05  # 0-1
     originalHealth = 1000
     def __init__(self, game, position, team):
         super().__init__(position, ' Q' + team)

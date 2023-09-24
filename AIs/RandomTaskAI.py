@@ -1,5 +1,3 @@
-# RandomTaskAI
-
 import math, random
 
 from antlib import *
@@ -14,8 +12,12 @@ class AI:
     def __init__(self, myteam, enemyteams):
         self.myteam = myteam
         self.enemyteams = enemyteams
+        self.name = 'RandomTaskAI'
 
         self.anttasks = {}
+
+    def antDied(self, ant):
+        del self.anttasks[ant.id]
 
     def loop(self, game):
         self.occupiedFood = []
@@ -44,6 +46,7 @@ class AI:
             if len(nonOccupiedFood) == 0:
                 task = Tasks.AttackAnts
             else:
+                # TODO rather than going to the nearest unoccupied food, we should be looking from the food's perspective which ant is closest. We might be sending an ant to its closest food, on the other side of the game, and then marking it as occupied
                 self.goto(game, ant, nonOccupiedFood)
                 return
 

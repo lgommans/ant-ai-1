@@ -1,1 +1,1 @@
-from . import RandomTaskAI, SimpleAI
+from . import SimpleAI, RandomAI, RandomTaskAI
