@@ -171,9 +171,9 @@ def gameMaintenance():
                         print("Team " + queenteam + " lost!")
                         displayStats()
 
-                        aliveTeams = sum((1 for team in game.teams if game.queens[team].health > 0))
-                        if aliveTeams < 2:
-                            sys.exit(0)
+                        game.aliveTeams = sum((1 for team in game.teams if game.queens[team].health > 0))
+                        if game.aliveTeams < 2:
+                            return
 
     # If two ants reach a food at the same time, they get an equal share
     for food in game.food:
@@ -205,10 +205,6 @@ def gameMaintenance():
 
     for food in removeFood:
         game.food.remove(food)
-
-    if len(game.ants['J']) == 0 and len(game.ants['L']) == 0:
-        print("There are no winners in this game.")
-        sys.exit(0)
 
 def inputHandling():
     global framedelay, drawevery, headless
@@ -257,7 +253,7 @@ ais = {
     'M': AdvancedTaskAI,
 }
 
-game = Game(dimensions=(49, 49), ais=ais)
+game = Game(dimensions=(49, 49), ais=ais, shufflePositions=True)
 
 for i in range(0, 10):
     spawn_food()
@@ -266,16 +262,26 @@ for i in range(0, 10):
 while True:
     for i in range(0, 2):
         spawn_food()
+
     gameMaintenance()
+    if game.aliveTeams < 2:
+        break
+
     inputHandling()
+
     teamorder = list(game.teams.keys())
     random.shuffle(teamorder)
     for team in teamorder:
         game.teams[team].loop(game)
+
     if not headless:
         if game.time % math.ceil(drawevery) == 0:
             cls()
             displayStats()
             displayGrid()
         time.sleep(framedelay)
+
+for team in game.queens:
+    if game.queens[team].health > 0:
+        print(color(team) + f"Team {team} won" + color())
 

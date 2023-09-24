@@ -1,4 +1,4 @@
-import math
+import math, random
 
 def distance(obj1, obj2):
     ''' Returns Pythagorean distance. '''
@@ -19,7 +19,8 @@ def occupied(objects, position):
     return False
 
 class Game:
-    def __init__(self, dimensions, ais):
+    def __init__(self, dimensions, ais, shufflePositions=False):
+        self.aliveTeams = len(ais)
         self.ants = {}
         self.queens = {}
         self.food = []
@@ -28,14 +29,18 @@ class Game:
         self.time = 0
         self.newid = 0
 
-        queenPositions = iter((
+        queenPositions = [
             (0                 , 0                  ),
             (self.gridwidth - 1, self.gridheight - 1),
             (self.gridwidth - 1, 0                  ),
             (0                 , self.gridheight - 1),
-        ))
+        ]
+
+        if shufflePositions:
+            random.shuffle(queenPositions)
 
         self.teams = {}
+        queenPositions = iter(queenPositions)
         for team in ais:
             otherteams = list(ais.keys())
             otherteams.remove(team)
