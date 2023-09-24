@@ -19,7 +19,7 @@ def occupied(objects, position):
     return False
 
 class Game:
-    def __init__(self, dimensions):
+    def __init__(self, dimensions, ais):
         self.ants = {}
         self.queens = {}
         self.food = []
@@ -27,6 +27,12 @@ class Game:
         self.gridheight = dimensions[1]
         self.time = 0
         self.newid = 0
+
+        self.teams = {}
+        for team in ais:
+            otherteams = list(ais.keys())
+            otherteams.remove(team)
+            self.teams[team] = ais[team].AI(myteam=team, enemyteams=otherteams)
     
     def allObjects(self):
         allObjs = []

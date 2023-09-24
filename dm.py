@@ -12,7 +12,7 @@ from antlib import *
 from publicFunctions import *
 from external import NonBlockingConsole
 
-from AIs import SimpleAI, RandomAI
+from AIs import *
 
 def color(team = None):
     if not colorsEnabled:
@@ -162,6 +162,7 @@ def gameMaintenance():
 
     for ant in removeAnt:
         game.ants[ant.team].remove(ant)
+        ant.team
 
     for food in removeFood:
         game.food.remove(food)
@@ -196,7 +197,10 @@ drawevery = 1
 enabled = { 'antHealth': True, 'queenHealth': True, 'antCount': True }
 colorsEnabled = True
 
-game = Game((51, 51))
+game = Game(dimensions=(49, 49), ais={
+    'J': SimpleAI,
+    'L': RandomTaskAI,
+})
 
 queenpos = (0, 0)
 game.queens['L'] = Queen(game, queenpos, 'L')
@@ -205,9 +209,6 @@ Ant(game, 'L')
 queenpos = game.gridwidth - 1, game.gridheight - 1
 game.queens['J'] = Queen(game, queenpos, 'J')
 Ant(game, 'J')
-
-ai1 = SimpleAI.AI(myteam='J', enemyteams=['J'])
-ai2 = RandomAI.AI(myteam='L', enemyteams=['L'])
 
 for i in range(0, 10):
     spawn_food()
@@ -218,8 +219,8 @@ while True:
         spawn_food()
     gameMaintenance()
     inputHandling()
-    ai1.loop(game)
-    ai2.loop(game)
+    for team in game.teams:
+        game.teams[team].loop(game)
     if game.time % math.ceil(drawevery) == 0:
         cls()
         displayStats()
